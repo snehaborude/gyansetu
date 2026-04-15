@@ -74,35 +74,48 @@ const NGODashboard = () => {
 
     return (
         <div className="dashboard animate-fade-up">
-            <header style={{ marginBottom: '3rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <header style={{ 
+                marginBottom: '3.5rem', 
+                display: 'flex', 
+                justifyContent: 'space-between', 
+                alignItems: 'end',
+                padding: '2.5rem',
+                background: 'linear-gradient(135deg, var(--dark) 0%, #1e293b 100%)',
+                borderRadius: 'var(--radius-lg)',
+                color: 'white',
+                boxShadow: 'var(--shadow-lg)'
+            }}>
                 <div>
-                    <h1 style={{ fontSize: '2.5rem' }}>NGO Panel: {user?.name}</h1>
-                    <p style={{ color: 'var(--text-muted)' }}>Manage your book requests and active collections.</p>
+                    <span style={{ color: 'var(--secondary)', fontWeight: 700, textTransform: 'uppercase', letterSpacing: '1px', fontSize: '0.8rem' }}>Institution Panel</span>
+                    <h1 style={{ fontSize: '2.8rem', marginTop: '0.5rem' }}>Greetings, {user?.name}</h1>
+                    <p style={{ opacity: 0.8, marginTop: '0.5rem' }}>Manage your scholarly requests and donor collections in one place.</p>
                 </div>
-                <button className="btn-primary" onClick={() => setActiveTab('new-request')}>
-                    <Plus size={20} /> New Request
+                <button className="btn-primary" style={{ background: 'white', color: 'var(--dark)', padding: '1rem 2rem' }} onClick={() => setActiveTab('new-request')}>
+                    <Plus size={22} /> Post New Requirement
                 </button>
             </header>
 
-            <div className="tabs flex-center" style={{ gap: '2rem', marginBottom: '2rem', borderBottom: '1px solid var(--glass-border)', paddingBottom: '1rem' }}>
-                <button 
-                    onClick={() => setActiveTab('available')}
-                    style={{ background: 'none', fontWeight: activeTab === 'available' ? 700 : 400, color: activeTab === 'available' ? 'var(--primary)' : 'var(--text-muted)' }}
-                >
-                    Available Donations
-                </button>
-                <button 
-                    onClick={() => setActiveTab('accepted')}
-                    style={{ background: 'none', fontWeight: activeTab === 'accepted' ? 700 : 400, color: activeTab === 'accepted' ? 'var(--primary)' : 'var(--text-muted)' }}
-                >
-                    My Pickups
-                </button>
-                <button 
-                    onClick={() => setActiveTab('requests')}
-                    style={{ background: 'none', fontWeight: activeTab === 'requests' ? 700 : 400, color: activeTab === 'requests' ? 'var(--primary)' : 'var(--text-muted)' }}
-                >
-                    My Requests
-                </button>
+            <div className="tabs flex-center" style={{ gap: '3rem', marginBottom: '3rem', borderBottom: '2px solid #f1f5f9', paddingBottom: '0.5rem' }}>
+                {['available', 'accepted', 'requests'].map(tab => (
+                    <button 
+                        key={tab}
+                        onClick={() => setActiveTab(tab)}
+                        style={{ 
+                            background: 'none', 
+                            fontWeight: activeTab === tab ? 800 : 500, 
+                            color: activeTab === tab ? 'var(--primary)' : 'var(--text-muted)',
+                            padding: '1rem 0.5rem',
+                            position: 'relative',
+                            fontSize: '1rem',
+                            transition: 'color 0.3s ease'
+                        }}
+                    >
+                        {tab.charAt(0).toUpperCase() + tab.slice(1).replace('available', 'Open Donations').replace('accepted', 'Active Pickups').replace('requests', 'Our Requests')}
+                        {activeTab === tab && (
+                            <div style={{ position: 'absolute', bottom: '-8px', left: 0, right: 0, height: '3px', background: 'var(--primary)', borderRadius: '10px' }}></div>
+                        )}
+                    </button>
+                ))}
             </div>
 
             {activeTab === 'available' && (

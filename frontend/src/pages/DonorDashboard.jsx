@@ -100,21 +100,73 @@ const DonorDashboard = () => {
 
     return (
         <div className="dashboard animate-fade-up">
-            <header style={{ marginBottom: '3rem' }}>
-                <h1 style={{ fontSize: '2.5rem' }}>Welcome, {user?.name} 👋</h1>
-                <p style={{ color: 'var(--text-muted)' }}>Help us spread knowledge by donating your books.</p>
+            <header style={{ 
+                marginBottom: '4rem', 
+                display: 'flex', 
+                justifyContent: 'space-between', 
+                alignItems: 'end',
+                padding: '3rem',
+                background: 'linear-gradient(135deg, var(--primary), var(--primary-dark))',
+                borderRadius: 'var(--radius-lg)',
+                color: 'white',
+                position: 'relative',
+                overflow: 'hidden',
+                boxShadow: 'var(--shadow-lg)'
+            }}>
+                <div style={{ position: 'absolute', top: '-20%', right: '-10%', width: '300px', height: '300px', background: 'white', opacity: 0.1, borderRadius: '50%', filter: 'blur(60px)' }}></div>
+                <div style={{ zIndex: 1 }}>
+                    <span style={{ fontWeight: 700, textTransform: 'uppercase', letterSpacing: '2px', fontSize: '0.8rem', opacity: 0.9 }}>Donor Profile</span>
+                    <h1 style={{ fontSize: '3rem', marginTop: '0.5rem' }}>A Warm Hello, {user?.name}!</h1>
+                    <p style={{ opacity: 0.9, marginTop: '0.5rem' }}>You've shared knowledge that will last a lifetime. Keep up the great work.</p>
+                </div>
+                <div style={{ textAlign: 'right', zIndex: 1 }}>
+                    <p style={{ fontSize: '0.8rem', fontWeight: 600, opacity: 0.8, textTransform: 'uppercase', marginBottom: '0.5rem' }}>Total Impact</p>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                        <div style={{ textAlign: 'center', background: 'rgba(255,255,255,0.2)', padding: '0.8rem 1.5rem', borderRadius: 'var(--radius-md)', backdropFilter: 'blur(10px)' }}>
+                            <h2 style={{ fontSize: '2rem', margin: 0 }}>{donations.length}</h2>
+                            <p style={{ fontSize: '0.7rem', textTransform: 'uppercase', margin: 0 }}>Donations</p>
+                        </div>
+                    </div>
+                </div>
             </header>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 1fr', gap: '2rem' }}>
-                {/* Donation Form */}
-                <section className="glass-card">
-                    <h3 style={{ marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                        <Plus size={20} color="var(--primary)" />
-                        Donate a New Book
-                    </h3>
-                    
-                    {message && <div style={{ color: 'white', background: 'var(--secondary)', padding: '0.8rem', borderRadius: 'var(--radius-sm)', marginBottom: '1rem' }}>{message}</div>}
-                    {error && <div style={{ color: 'white', background: '#ef4444', padding: '0.8rem', borderRadius: 'var(--radius-sm)', marginBottom: '1rem' }}>{error}</div>}
+            <div style={{ display: 'grid', gridTemplateColumns: 'minmax(350px, 450px) 1fr', gap: '3rem', alignItems: 'start' }}>
+                <aside style={{ position: 'sticky', top: '2rem' }}>
+                    <div className="glass-card" style={{ padding: '2.5rem', border: '1px solid var(--glass-border)', background: 'white', boxShadow: 'var(--shadow)' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '2.5rem', borderBottom: '1px solid #f1f5f9', paddingBottom: '1.5rem' }}>
+                            <div style={{ padding: '0.8rem', background: 'rgba(37, 99, 235, 0.1)', borderRadius: 'var(--radius-sm)', color: 'var(--primary)' }}>
+                                <Plus size={24} />
+                            </div>
+                            <h2 style={{ fontSize: '1.8rem', margin: 0 }}>Post a Donation</h2>
+                        </div>
+                        
+                        {message && (
+                            <div className="animate-fade-up" style={{ 
+                                background: '#dcfce7', 
+                                color: '#166534', 
+                                padding: '1rem', 
+                                borderRadius: 'var(--radius-sm)', 
+                                marginBottom: '2rem',
+                                border: '1px solid #bbf7d0',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '0.5rem'
+                            }}>
+                                <CheckCircle size={18} />
+                                {message}
+                            </div>
+                        )}
+                        {error && (
+                            <div className="animate-fade-up" style={{ 
+                                color: '#ef4444', 
+                                background: 'rgba(239, 68, 68, 0.1)', 
+                                padding: '1rem', 
+                                borderRadius: 'var(--radius-sm)', 
+                                marginBottom: '2rem', 
+                                fontSize: '0.9rem',
+                                border: '1px solid rgba(239, 68, 68, 0.2)'
+                            }}>{error}</div>
+                        )}
 
                     <form onSubmit={handleDonate}>
                         <div style={{ marginBottom: '1.2rem' }}>
