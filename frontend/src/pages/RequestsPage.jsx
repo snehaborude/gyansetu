@@ -74,7 +74,7 @@ const RequestsPage = () => {
                                 </div>
                             </div>
                             
-                            <Link to="/dashboard/donor" className="btn-primary" style={{ marginTop: '2rem', justifyContent: 'center' }}>
+                            <Link to={`/dashboard/donor?bookType=${encodeURIComponent(req.bookType)}&category=${encodeURIComponent(req.bookType)}`} className="btn-primary" style={{ marginTop: '2rem', justifyContent: 'center' }}>
                                 <Heart size={18} /> Donate Now
                             </Link>
                         </div>

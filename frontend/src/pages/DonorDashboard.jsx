@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import api from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import { Plus, Clock, Book as BookIcon, CheckCircle, Package, Truck } from 'lucide-react';
@@ -20,10 +21,25 @@ const DonorDashboard = () => {
     const [topDonors, setTopDonors] = useState([]);
     const [loading, setLoading] = useState(false);
 
+    const location = useLocation();
+
     useEffect(() => {
         fetchDonations();
         fetchTopDonors();
-    }, []);
+
+        // Handle pre-filling from requested books
+        const params = new URLSearchParams(location.search);
+        const bookType = params.get('bookType');
+        const category = params.get('category');
+        
+        if (bookType || category) {
+            setFormData(prev => ({
+                ...prev,
+                bookName: bookType || '',
+                category: category || ''
+            }));
+        }
+    }, [location]);
 
     const fetchTopDonors = async () => {
         try {
@@ -234,33 +250,75 @@ const DonorDashboard = () => {
                             <p style={{ color: 'var(--text-muted)', textAlign: 'center', padding: '2rem' }}>No donations yet. Start today!</p>
                         ) : (
                             donations.map((d) => (
-                                <div key={d._id} className="glass-card" style={{ padding: '1rem', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                                    <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
-                                        {d.imageUrl ? (
-                                            <img src={`http://localhost:5000${d.imageUrl}`} alt="Book" style={{ width: '48px', height: '48px', objectFit: 'cover', borderRadius: '4px' }} />
-                                        ) : (
-                                            <div style={{ background: 'var(--light)', padding: '0.8rem', borderRadius: 'var(--radius-sm)' }}>
-                                                <BookIcon size={24} color="var(--primary)" />
+                                <div key={d._id} className="glass-card" style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                                        <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+                                            {d.imageUrl ? (
+                                                <img src={`http://localhost:5000${d.imageUrl}`} alt="Book" style={{ width: '60px', height: '60px', objectFit: 'cover', borderRadius: '8px' }} />
+                                            ) : (
+                                                <div style={{ background: 'var(--light)', padding: '1rem', borderRadius: 'var(--radius-sm)' }}>
+                                                    <BookIcon size={24} color="var(--primary)" />
+                                                </div>
+                                            )}
+                                            <div>
+                                                <h4 style={{ margin: 0, fontSize: '1.1rem' }}>{d.bookName}</h4>
+                                                <p style={{ margin: '0.2rem 0', fontSize: '0.85rem', color: 'var(--text-muted)' }}>{d.category} • {d.condition}</p>
+                                                {d.ngo && (
+                                                    <div style={{ marginTop: '0.5rem', padding: '0.5rem', background: 'rgba(37, 99, 235, 0.05)', borderRadius: '4px', fontSize: '0.8rem' }}>
+                                                        <span style={{ fontWeight: 600, color: 'var(--primary)' }}>Accepted by:</span> {d.ngo.name} <br/>
+                                                        <span style={{ fontWeight: 600, color: 'var(--primary)' }}>Contact:</span> {d.ngo.phone}
+                                                    </div>
+                                                )}
                                             </div>
-                                        )}
-                                        <div>
-                                            <h4 style={{ margin: 0 }}>{d.bookName}</h4>
-                                            <p style={{ margin: '0.2rem 0', fontSize: '0.8rem', color: 'var(--text-muted)' }}>{d.category} • {d.condition}</p>
-                                            {d.pickupDate && <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--text-main)' }}>Schedule: {new Date(d.pickupDate).toLocaleDateString()}</p>}
-                                            {d.ngo && <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--secondary)' }}>NGO: {d.ngo.name} ({d.ngo.phone})</p>}
+                                        </div>
+                                        <div style={{ textAlign: 'right' }}>
+                                            <span style={{ 
+                                                padding: '0.4rem 0.8rem', 
+                                                borderRadius: '20px', 
+                                                fontSize: '0.75rem', 
+                                                fontWeight: 800,
+                                                background: getStatusColor(d.status) + '22',
+                                                color: getStatusColor(d.status),
+                                                textTransform: 'uppercase',
+                                                letterSpacing: '0.5px'
+                                            }}>
+                                                {d.status === 'Delivered' ? '✅ Received' : d.status}
+                                            </span>
                                         </div>
                                     </div>
-                                    <div style={{ textAlign: 'right' }}>
-                                        <span style={{ 
-                                            padding: '0.4rem 0.8rem', 
-                                            borderRadius: '20px', 
-                                            fontSize: '0.75rem', 
-                                            fontWeight: 700,
-                                            background: getStatusColor(d.status) + '22',
-                                            color: getStatusColor(d.status)
-                                        }}>
-                                            {d.status}
-                                        </span>
+
+                                    {/* Delivery Tracker UI */}
+                                    <div style={{ marginTop: '0.5rem' }}>
+                                        <p style={{ fontSize: '0.75rem', fontWeight: 700, color: 'var(--text-muted)', marginBottom: '0.8rem', textTransform: 'uppercase' }}>Delivery Track</p>
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', position: 'relative', padding: '0 10px' }}>
+                                            <div style={{ position: 'absolute', top: '10px', left: '20px', right: '20px', height: '2px', background: 'var(--glass-border)', zIndex: 0 }}></div>
+                                            <div style={{ position: 'absolute', top: '10px', left: '20px', width: d.status === 'Pending' ? '0%' : d.status === 'Accepted' ? '33%' : d.status === 'Picked' ? '66%' : '100%', height: '2px', background: 'var(--primary)', zIndex: 0, transition: 'width 0.5s ease' }}></div>
+                                            
+                                            {['Pending', 'Accepted', 'Picked', 'Delivered'].map((step, idx) => {
+                                                const isCompleted = ['Pending', 'Accepted', 'Picked', 'Delivered'].indexOf(d.status) >= idx;
+                                                const stepLabels = { Pending: 'Listed', Accepted: 'Accepted', Picked: 'Picked Up', Delivered: 'Received' };
+                                                return (
+                                                    <div key={step} style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5rem', zIndex: 1 }}>
+                                                        <div style={{ 
+                                                            width: '20px', 
+                                                            height: '20px', 
+                                                            borderRadius: '50%', 
+                                                            background: isCompleted ? 'var(--primary)' : 'white', 
+                                                            border: isCompleted ? 'none' : '2px solid var(--glass-border)',
+                                                            display: 'flex',
+                                                            alignItems: 'center',
+                                                            justifyContent: 'center',
+                                                            transition: 'all 0.3s ease'
+                                                        }}>
+                                                            {isCompleted && <CheckCircle size={12} color="white" />}
+                                                        </div>
+                                                        <span style={{ fontSize: '0.65rem', fontWeight: isCompleted ? 700 : 500, color: isCompleted ? 'var(--text-main)' : 'var(--text-muted)' }}>
+                                                            {stepLabels[step]}
+                                                        </span>
+                                                    </div>
+                                                );
+                                            })}
+                                        </div>
                                     </div>
                                 </div>
                             ))

@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import api from '../services/api';
 import { useAuth } from '../context/AuthContext';
-import { Truck, Search, CheckCircle, AlertCircle, Plus } from 'lucide-react';
+import { Truck, Search, CheckCircle, AlertCircle, Plus, Book } from 'lucide-react';
 
 const NGODashboard = () => {
     const { user } = useAuth();
@@ -120,22 +120,35 @@ const NGODashboard = () => {
                     </div>
                     <div className="grid-cols">
                         {donations.filter(d => d.status === 'Pending').map(d => (
-                        <div key={d._id} className="glass-card" style={{ padding: '1.5rem' }}>
-                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1rem' }}>
-                                <span style={{ background: 'var(--light)', padding: '0.4rem 0.8rem', borderRadius: '4px', fontSize: '0.8rem', fontWeight: 600 }}>{d.category}</span>
-                                <span style={{ color: 'var(--secondary)', fontSize: '0.8rem', fontWeight: 700 }}>AVAILABLE</span>
+                        <div key={d._id} className="glass-card" style={{ padding: '1.5rem', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                                <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+                                    {d.imageUrl ? (
+                                        <img src={`http://localhost:5000${d.imageUrl}`} alt="Book" style={{ width: '60px', height: '60px', objectFit: 'cover', borderRadius: '8px' }} />
+                                    ) : (
+                                        <div style={{ background: 'var(--light)', padding: '1rem', borderRadius: 'var(--radius-sm)' }}>
+                                            <BookIcon size={24} color="var(--primary)" />
+                                        </div>
+                                    )}
+                                    <div>
+                                        <span style={{ background: 'var(--light)', padding: '0.3rem 0.6rem', borderRadius: '4px', fontSize: '0.75rem', fontWeight: 600, display: 'inline-block', marginBottom: '0.5rem' }}>{d.category}</span>
+                                        <h3 style={{ margin: 0, fontSize: '1.2rem' }}>{d.bookName}</h3>
+                                        <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', margin: '0.2rem 0' }}>Condition: <b>{d.condition}</b></p>
+                                    </div>
+                                </div>
+                                <span style={{ color: 'var(--secondary)', fontSize: '0.75rem', fontWeight: 800, textTransform: 'uppercase' }}>AVAILABLE</span>
                             </div>
-                            <h3 style={{ marginBottom: '0.5rem' }}>{d.bookName}</h3>
-                            <p style={{ fontSize: '0.9rem', color: 'var(--text-muted)', marginBottom: '1rem' }}>Condition: <b>{d.condition}</b></p>
-                            <p style={{ fontSize: '0.9rem', color: 'var(--text-muted)', marginBottom: '0.5rem' }}>
-                                Method: <b style={{ color: d.deliveryMethod === 'Self Drop-off' ? 'var(--secondary)' : 'var(--primary)' }}>{d.deliveryMethod || 'Pickup Request'}</b>
-                            </p>
-                            {(!d.deliveryMethod || d.deliveryMethod === 'Pickup Request') && (
-                                <p style={{ fontSize: '0.9rem', marginBottom: '1.5rem' }}><Truck size={14} style={{ marginRight: '0.5rem' }} /> {d.pickupAddress}</p>
-                            )}
-                            {d.deliveryMethod === 'Self Drop-off' && (
-                                <p style={{ fontSize: '0.9rem', marginBottom: '1.5rem' }}><CheckCircle size={14} style={{ marginRight: '0.5rem' }} /> Donor will drop off</p>
-                            )}
+
+                            <div style={{ padding: '0.8rem', background: 'rgba(0,0,0,0.02)', borderRadius: '8px', fontSize: '0.9rem' }}>
+                                <p style={{ margin: '0 0 0.4rem 0', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                                    <Truck size={16} color="var(--primary)" /> 
+                                    <b>{d.deliveryMethod || 'Pickup Request'}</b>
+                                </p>
+                                {(!d.deliveryMethod || d.deliveryMethod === 'Pickup Request') && (
+                                    <p style={{ margin: 0, fontSize: '0.8rem', color: 'var(--text-muted)' }}>{d.pickupAddress}, {d.city} - {d.pincode}</p>
+                                )}
+                            </div>
+
                             <button className="btn-primary" style={{ width: '100%', justifyContent: 'center' }} onClick={() => handleAccept(d._id)}>
                                 Accept Donation
                             </button>
@@ -150,25 +163,41 @@ const NGODashboard = () => {
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                     {donations.filter(d => d.status !== 'Pending' && (d.ngo === user?._id || d.ngo?._id === user?._id)).map(d => (
                         <div key={d._id} className="glass-card" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1.5rem' }}>
-                            <div>
-                                <h3 style={{ margin: 0 }}>{d.bookName}</h3>
-                                <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', margin: '0.2rem 0' }}>From: {d.donor?.name || 'Anonymous Donor'}</p>
-                                <p style={{ fontSize: '0.8rem', color: 'var(--text-main)', margin: 0 }}>Contact: {d.donor?.phone || 'N/A'}</p>
-                                {d.pickupDate && <p style={{ fontSize: '0.8rem', color: 'var(--text-main)', margin: '0.2rem 0' }}>Schedule: {new Date(d.pickupDate).toLocaleDateString()}</p>}
-                                {d.city && <p style={{ fontSize: '0.8rem', color: 'var(--text-main)', margin: 0 }}>City: {d.city}</p>}
+                            <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
+                                {d.imageUrl ? (
+                                    <img src={`http://localhost:5000${d.imageUrl}`} alt="Book" style={{ width: '50px', height: '50px', objectFit: 'cover', borderRadius: '4px' }} />
+                                ) : (
+                                    <div style={{ background: 'var(--light)', padding: '0.8rem', borderRadius: '4px' }}>
+                                        <Book size={20} color="var(--primary)" />
+                                    </div>
+                                )}
+                                <div>
+                                    <h3 style={{ margin: 0, fontSize: '1.1rem' }}>{d.bookName}</h3>
+                                    <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '0.3rem' }}>
+                                        <p style={{ margin: 0 }}><b>Donor:</b> {d.donor?.name} | <span style={{ color: 'var(--primary)' }}>{d.donor?.phone}</span></p>
+                                        <p style={{ margin: '0.2rem 0 0 0' }}><b>Type:</b> {d.deliveryMethod}</p>
+                                    </div>
+                                </div>
                             </div>
-                            <div className="flex-center" style={{ gap: '1rem' }}>
-                                <select 
-                                    className="glass-card" 
-                                    style={{ padding: '0.5rem', background: 'white' }}
-                                    value={d.status}
-                                    onChange={(e) => handleUpdateStatus(d._id, e.target.value)}
-                                >
-                                    <option value="Accepted">Accepted</option>
-                                    <option value="Picked">Picked</option>
-                                    <option value="Delivered">Delivered</option>
-                                </select>
-                                {d.status === 'Delivered' && <CheckCircle color="var(--secondary)" />}
+                            <div className="flex-center" style={{ gap: '1.5rem' }}>
+                                <div style={{ textAlign: 'right' }}>
+                                    <p style={{ margin: '0 0 0.3rem 0', fontSize: '0.7rem', fontWeight: 700, color: 'var(--text-muted)', textTransform: 'uppercase' }}>Update Status</p>
+                                    <select 
+                                        className="glass-card" 
+                                        style={{ padding: '0.5rem', background: 'white', border: '1px solid var(--glass-border)', fontSize: '0.85rem', cursor: 'pointer' }}
+                                        value={d.status}
+                                        onChange={(e) => handleUpdateStatus(d._id, e.target.value)}
+                                    >
+                                        <option value="Accepted">Accepted</option>
+                                        <option value="Picked">Picked Up</option>
+                                        <option value="Delivered">Received / Done</option>
+                                    </select>
+                                </div>
+                                {d.status === 'Delivered' && (
+                                    <div style={{ background: 'var(--secondary)', color: 'white', padding: '0.5rem', borderRadius: '50%' }}>
+                                        <CheckCircle size={20} />
+                                    </div>
+                                )}
                             </div>
                         </div>
                     ))}
