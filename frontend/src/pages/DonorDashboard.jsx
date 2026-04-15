@@ -289,10 +289,11 @@ const DonorDashboard = () => {
                             {loading ? 'Posting...' : 'Post Donation'}
                         </button>
                     </form>
-                </section>
+                </div>
+            </aside>
 
-                {/* Donation History */}
-                <section>
+            {/* Donation History */}
+            <section>
                     <h3 style={{ marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                         <Clock size={20} color="var(--primary)" />
                         Your Recent Donations

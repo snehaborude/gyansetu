@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import api from '../services/api';
-import { BookOpen, MapPin, Calendar, Heart } from 'lucide-react';
+import { BookOpen, MapPin, Calendar, Heart, Search } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
 const RequestsPage = () => {
