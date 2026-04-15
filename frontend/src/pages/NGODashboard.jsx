@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import api from '../services/api';
 import { useAuth } from '../context/AuthContext';
-import { Truck, Search, CheckCircle, AlertCircle, Plus, Book } from 'lucide-react';
+import { Truck, Search, CheckCircle, AlertCircle, Plus, Book as BookIcon } from 'lucide-react';
 
 const NGODashboard = () => {
     const { user } = useAuth();
@@ -168,7 +168,7 @@ const NGODashboard = () => {
                                     <img src={`http://localhost:5000${d.imageUrl}`} alt="Book" style={{ width: '50px', height: '50px', objectFit: 'cover', borderRadius: '4px' }} />
                                 ) : (
                                     <div style={{ background: 'var(--light)', padding: '0.8rem', borderRadius: '4px' }}>
-                                        <Book size={20} color="var(--primary)" />
+                                        <BookIcon size={20} color="var(--primary)" />
                                     </div>
                                 )}
                                 <div>
