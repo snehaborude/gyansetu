@@ -25,16 +25,17 @@ const Navbar = () => {
     return (
         <nav className="glass-card" style={{ 
             padding: '0.8rem 3rem', 
-            margin: '1rem 2rem', 
+            margin: '0', 
             position: 'sticky', 
-            top: '1rem', 
+            top: '0', 
             zIndex: 1000, 
             display: 'flex', 
             justifyContent: 'space-between', 
             alignItems: 'center',
             background: 'var(--dark)',
-            border: '1px solid rgba(255, 255, 255, 0.15)',
-            boxShadow: '0 10px 30px rgba(0,0,0,0.15)'
+            borderBottom: '1px solid rgba(255, 255, 255, 0.15)',
+            boxShadow: '0 10px 30px rgba(0,0,0,0.15)',
+            borderRadius: '0'
         }}>
             <Link to="/" className="brand flex-center" style={{ gap: '0.8rem', fontSize: '1.8rem', fontWeight: 800 }}>
                 <div style={{ background: 'var(--primary)', color: 'white', padding: '0.5rem', borderRadius: '12px', display: 'flex' }}>

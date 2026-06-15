@@ -9,7 +9,10 @@ const Footer = () => {
             color: '#cbd5e1', 
             padding: '2rem 3rem 1.5rem 3rem',
             borderTop: '1px solid rgba(255, 255, 255, 0.1)',
-            marginTop: '3rem'
+            margin: '0',
+            position: 'sticky',
+            bottom: '0',
+            zIndex: 1000
         }}>
             <div className="container" style={{ 
                 display: 'flex', 

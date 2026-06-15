@@ -184,3 +184,14 @@ button {
 html {
   scroll-behavior: smooth;
 }
+
+/* Flexbox Layout for Full Height App & Sticky Footer */
+.app {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.app main {
+  flex: 1;
+}
