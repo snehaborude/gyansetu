@@ -24,8 +24,8 @@ const Register = () => {
             setError('Phone number must be exactly 10 digits');
             return;
         }
-        if (formData.password.length < 5) {
-            setError('Password must be at least 5 characters');
+        if (formData.password.length < 6) {
+            setError('Password must be at least 6 characters');
             return;
         }
         setError('');
@@ -140,10 +140,10 @@ const Register = () => {
                             <input 
                                 type="password" 
                                 required 
-                                minLength={5}
+                                minLength={6}
                                 className="glass-card" 
                                 style={{ width: '100%', padding: '1rem 1rem 1rem 3.5rem', background: 'white', border: '1px solid #e2e8f0' }} 
-                                placeholder="Min 5 characters"
+                                placeholder="Min 6 characters"
                                 value={formData.password}
                                 onChange={(e) => setFormData({...formData, password: e.target.value})}
                             />

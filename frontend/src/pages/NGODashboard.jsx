@@ -1,7 +1,8 @@
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import api from '../services/api';
 import { useAuth } from '../context/AuthContext';
-import { Truck, Search, CheckCircle, AlertCircle, Plus, Book as BookIcon } from 'lucide-react';
+import { Truck, Search, CheckCircle, AlertCircle, Plus, Book as BookIcon, ArrowRight } from 'lucide-react';
 
 const NGODashboard = () => {
     const { user } = useAuth();
@@ -10,6 +11,10 @@ const NGODashboard = () => {
     const [reqForm, setReqForm] = useState({ quantity: 1, bookType: '' });
     const [activeTab, setActiveTab] = useState('available'); // available, accepted, requests
     const [cityFilter, setCityFilter] = useState('');
+    const [sentFeedbacks, setSentFeedbacks] = useState([]);
+    const [showFeedbackModal, setShowFeedbackModal] = useState(false);
+    const [selectedDonation, setSelectedDonation] = useState(null);
+    const [feedbackMessage, setFeedbackMessage] = useState('');
 
     useEffect(() => {
         const timer = setTimeout(() => {
@@ -20,7 +25,35 @@ const NGODashboard = () => {
 
     useEffect(() => {
         fetchMyRequests();
+        fetchSentFeedbacks();
     }, []);
+
+    const fetchSentFeedbacks = async () => {
+        try {
+            const res = await api.get('/feedback/ngo');
+            setSentFeedbacks(res.data);
+        } catch (error) {
+            console.error('Error fetching sent feedbacks', error);
+        }
+    };
+
+    const handleSubmitFeedback = async (e) => {
+        e.preventDefault();
+        try {
+            await api.post('/feedback', {
+                donationId: selectedDonation._id,
+                message: feedbackMessage
+            });
+            setShowFeedbackModal(false);
+            setFeedbackMessage('');
+            setSelectedDonation(null);
+            fetchSentFeedbacks();
+            alert('Thank you! Your note of gratitude has been sent to the donor.');
+        } catch (error) {
+            console.error('Error submitting feedback', error);
+            alert(error.response?.data?.message || 'Failed to send note.');
+        }
+    };
 
     const fetchDonations = async () => {
         try {
@@ -137,7 +170,7 @@ const NGODashboard = () => {
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                                 <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
                                     {d.imageUrl ? (
-                                        <img src={`http://localhost:5000${d.imageUrl}`} alt="Book" style={{ width: '60px', height: '60px', objectFit: 'cover', borderRadius: '8px' }} />
+                                        <img src={`http://localhost:5080${d.imageUrl}`} alt="Book" style={{ width: '60px', height: '60px', objectFit: 'cover', borderRadius: '8px' }} />
                                     ) : (
                                         <div style={{ background: 'var(--light)', padding: '1rem', borderRadius: 'var(--radius-sm)' }}>
                                             <BookIcon size={24} color="var(--primary)" />
@@ -178,7 +211,7 @@ const NGODashboard = () => {
                         <div key={d._id} className="glass-card" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '1.5rem' }}>
                             <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
                                 {d.imageUrl ? (
-                                    <img src={`http://localhost:5000${d.imageUrl}`} alt="Book" style={{ width: '50px', height: '50px', objectFit: 'cover', borderRadius: '4px' }} />
+                                    <img src={`http://localhost:5080${d.imageUrl}`} alt="Book" style={{ width: '50px', height: '50px', objectFit: 'cover', borderRadius: '4px' }} />
                                 ) : (
                                     <div style={{ background: 'var(--light)', padding: '0.8rem', borderRadius: '4px' }}>
                                         <BookIcon size={20} color="var(--primary)" />
@@ -189,6 +222,31 @@ const NGODashboard = () => {
                                     <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '0.3rem' }}>
                                         <p style={{ margin: 0 }}><b>Donor:</b> {d.donor?.name} | <span style={{ color: 'var(--primary)' }}>{d.donor?.phone}</span></p>
                                         <p style={{ margin: '0.2rem 0 0 0' }}><b>Type:</b> {d.deliveryMethod}</p>
+                                        <div style={{ marginTop: '0.4rem', fontSize: '0.75rem' }}>
+                                            <b>Tracking ID: </b>
+                                            <code 
+                                                style={{ 
+                                                    background: '#f1f5f9', 
+                                                    padding: '0.1rem 0.3rem', 
+                                                    borderRadius: '4px', 
+                                                    cursor: 'pointer', 
+                                                    fontFamily: 'monospace',
+                                                    border: '1px solid #cbd5e1'
+                                                }}
+                                                onClick={() => {
+                                                    navigator.clipboard.writeText(d._id);
+                                                    alert('Copied Tracking ID to clipboard!');
+                                                }}
+                                                title="Click to copy ID"
+                                            >
+                                                {d._id}
+                                            </code>
+                                        </div>
+                                        <div style={{ marginTop: '0.4rem' }}>
+                                            <Link to={`/track/${d._id}`} style={{ color: 'var(--primary)', fontWeight: 700, display: 'inline-flex', alignItems: 'center', gap: '0.2rem' }}>
+                                                Trace Shipment <ArrowRight size={12} />
+                                            </Link>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -207,8 +265,26 @@ const NGODashboard = () => {
                                     </select>
                                 </div>
                                 {d.status === 'Delivered' && (
-                                    <div style={{ background: 'var(--secondary)', color: 'white', padding: '0.5rem', borderRadius: '50%' }}>
-                                        <CheckCircle size={20} />
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+                                        {sentFeedbacks.some(f => f.donation === d._id || f.donation?._id === d._id) ? (
+                                            <span style={{ fontSize: '0.8rem', color: 'var(--secondary)', fontWeight: 700 }}>
+                                                ✓ Gratitude Sent
+                                            </span>
+                                        ) : (
+                                            <button 
+                                                className="btn-primary" 
+                                                style={{ padding: '0.5rem 1rem', fontSize: '0.8rem', background: 'var(--secondary)', borderRadius: '4px' }}
+                                                onClick={() => {
+                                                    setSelectedDonation(d);
+                                                    setShowFeedbackModal(true);
+                                                }}
+                                            >
+                                                Send Gratitude
+                                            </button>
+                                        )}
+                                        <div style={{ background: 'var(--secondary)', color: 'white', padding: '0.5rem', borderRadius: '50%', display: 'flex' }}>
+                                            <CheckCircle size={20} />
+                                        </div>
                                     </div>
                                 )}
                             </div>
@@ -262,6 +338,71 @@ const NGODashboard = () => {
                         <div className="flex-center" style={{ gap: '1rem' }}>
                             <button type="button" className="btn-primary" style={{ background: 'var(--text-muted)', width: '50%', justifyContent: 'center' }} onClick={() => setActiveTab('requests')}>Cancel</button>
                             <button type="submit" className="btn-primary" style={{ width: '50%', justifyContent: 'center' }}>Submit Request</button>
+                        </div>
+                    </form>
+                </div>
+            )}
+
+            {/* Gratitude Modal */}
+            {showFeedbackModal && selectedDonation && (
+                <div style={{ 
+                    position: 'fixed', 
+                    top: 0, 
+                    left: 0, 
+                    right: 0, 
+                    bottom: 0, 
+                    background: 'rgba(15, 23, 42, 0.6)', 
+                    display: 'flex', 
+                    justifyContent: 'center', 
+                    alignItems: 'center', 
+                    zIndex: 2000, 
+                    backdropFilter: 'blur(4px)' 
+                }}>
+                    <form onSubmit={handleSubmitFeedback} className="glass-card animate-fade-up" style={{ width: '100%', maxWidth: '500px', background: 'white', padding: '2.5rem' }}>
+                        <h3 style={{ fontSize: '1.5rem', marginBottom: '1rem', color: 'var(--dark)', fontFamily: 'Outfit' }}>Send Message of Gratitude</h3>
+                        <p style={{ fontSize: '0.9rem', color: 'var(--text-muted)', marginBottom: '1.5rem' }}>
+                            Write a quick thank-you message to the donor (<b>{selectedDonation.donor?.name}</b>) for donating <b>{selectedDonation.bookName}</b>. Let them know how their books are helping your students!
+                        </p>
+                        
+                        <div style={{ marginBottom: '1.5rem' }}>
+                            <textarea 
+                                required
+                                placeholder="E.g., Thank you so much for donating these science textbooks! Our 8th-grade students are using them daily in our science lab..."
+                                value={feedbackMessage}
+                                onChange={(e) => setFeedbackMessage(e.target.value)}
+                                style={{ 
+                                    width: '100%', 
+                                    height: '120px', 
+                                    padding: '0.8rem', 
+                                    border: '1px solid #cbd5e1', 
+                                    borderRadius: 'var(--radius-sm)', 
+                                    resize: 'none',
+                                    fontFamily: 'inherit',
+                                    fontSize: '0.9rem'
+                                }}
+                            />
+                        </div>
+                        
+                        <div style={{ display: 'flex', gap: '1rem', justifyContent: 'flex-end' }}>
+                            <button 
+                                type="button" 
+                                className="glass-card" 
+                                style={{ padding: '0.6rem 1.2rem', background: '#f1f5f9', border: '1px solid #cbd5e1', cursor: 'pointer', borderRadius: '4px' }} 
+                                onClick={() => {
+                                    setShowFeedbackModal(false);
+                                    setSelectedDonation(null);
+                                    setFeedbackMessage('');
+                                }}
+                            >
+                                Cancel
+                            </button>
+                            <button 
+                                type="submit" 
+                                className="btn-primary" 
+                                style={{ padding: '0.6rem 1.5rem', borderRadius: '4px' }}
+                            >
+                                Send Note
+                            </button>
                         </div>
                     </form>
                 </div>

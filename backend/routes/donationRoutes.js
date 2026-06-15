@@ -8,6 +8,8 @@ const {
     updateDonationStatus,
     getStats,
     getTopDonors,
+    getDonationById,
+    deleteDonation,
 } = require('../controllers/donationController');
 const { protect, authorize } = require('../middleware/authMiddleware');
 
@@ -27,6 +29,8 @@ router.get('/top-donors', getTopDonors);
 
 router.post('/', protect, authorize('donor', 'admin'), upload.single('image'), createDonation);
 router.get('/', protect, getDonations);
+router.get('/:id', protect, getDonationById);
 router.put('/:id/status', protect, authorize('ngo', 'admin'), updateDonationStatus);
+router.delete('/:id', protect, authorize('admin'), deleteDonation);
 
 module.exports = router;

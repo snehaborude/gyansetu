@@ -69,6 +69,10 @@ const updateDonationStatus = async (req, res) => {
 
         // Only allow status updates by NGOs (if they accepted it) or Admin
         if (req.user.role === 'ngo') {
+            // Check if another NGO has already claimed this donation
+            if (donation.ngo && donation.ngo.toString() !== req.user.id) {
+                return res.status(403).json({ message: 'This donation is already claimed by another NGO.' });
+            }
             donation.ngo = req.user.id;
         }
         
@@ -116,10 +120,55 @@ const getTopDonors = async (req, res) => {
     }
 };
 
+// @desc    Get single donation by ID (for tracking)
+// @route   GET /api/donations/:id
+// @access  Private
+const getDonationById = async (req, res) => {
+    try {
+        const donation = await Donation.findById(req.params.id)
+            .populate('donor', 'name city address pincode')
+            .populate('ngo', 'name city address pincode phone');
+
+        if (!donation) {
+            return res.status(404).json({ message: 'Donation not found' });
+        }
+
+        // Check if user is authorized to view it (only donor, accepted ngo, or admin)
+        if (req.user.role === 'donor' && donation.donor._id.toString() !== req.user.id) {
+            return res.status(403).json({ message: 'Not authorized to view this donation.' });
+        }
+        if (req.user.role === 'ngo' && donation.ngo && donation.ngo._id.toString() !== req.user.id) {
+            return res.status(403).json({ message: 'Not authorized to view this donation.' });
+        }
+
+        res.status(200).json(donation);
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
+// @desc    Delete donation list (Admin)
+// @route   DELETE /api/donations/:id
+// @access  Private (Admin)
+const deleteDonation = async (req, res) => {
+    try {
+        const donation = await Donation.findById(req.params.id);
+        if (!donation) {
+            return res.status(404).json({ message: 'Donation not found' });
+        }
+        await donation.deleteOne();
+        res.status(200).json({ message: 'Donation removed successfully' });
+    } catch (error) {
+        res.status(500).json({ message: error.message });
+    }
+};
+
 module.exports = {
     createDonation,
     getDonations,
     updateDonationStatus,
     getStats,
     getTopDonors,
+    getDonationById,
+    deleteDonation,
 };

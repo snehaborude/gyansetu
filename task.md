@@ -1,0 +1,36 @@
+# Checklist
+
+- [x] Backend Security Fixes
+    - [x] Modify `backend/models/User.js` to return early on password hashing pre-save
+    - [x] Modify `backend/middleware/authMiddleware.js` to use `return` on error status calls
+    - [x] Modify `backend/controllers/authController.js` to restrict `role` during registration
+    - [x] Modify `backend/controllers/donationController.js` to enforce claim ownership
+    - [x] Modify `backend/controllers/requestController.js` to enforce request update ownership
+- [x] UI & Multi-Page Migration
+    - [x] Update `frontend/src/index.css` to add the `.card-light-blue` class and set books background overlay to 78% opacity
+    - [x] Create dedicated `frontend/src/pages/About.jsx` page with solid blue/white text containers
+    - [x] Create dedicated `frontend/src/pages/HowToHelp.jsx` page with solid blue/white text containers
+    - [x] Create dedicated `frontend/src/pages/Impact.jsx` page with solid blue/white text containers
+    - [x] Create dedicated `frontend/src/pages/FAQs.jsx` page with solid blue/white text containers
+    - [x] Create dedicated `frontend/src/pages/Contact.jsx` page with solid blue/white text containers and form
+    - [x] Update `frontend/src/pages/Home.jsx` to clean up old sections and apply light-blue/white styling
+    - [x] Update `frontend/src/components/Navbar.jsx` to route to the new pages
+    - [x] Update `frontend/src/App.jsx` to configure new routes and global background class
+- [x] Tracking & Footer Integration
+    - [x] Add `getDonationById` controller to backend `donationController.js`
+    - [x] Register `GET /api/donations/:id` route in backend `donationRoutes.js`
+    - [x] Create `frontend/src/components/Footer.jsx` component
+    - [x] Create `frontend/src/pages/Tracking.jsx` page with a visual stepper timeline
+    - [x] Update `frontend/src/components/Navbar.jsx` to add "Track Donation" link
+    - [x] Update `frontend/src/App.jsx` to include tracking routes and global footer rendering
+- [x] Smaller Footer Layout
+    - [x] Re-design `Footer.jsx` to be a modern, highly compact, horizontal layout to reduce vertical height.
+- [x] Administrative Dashboard Improvements
+    - [x] Add `DELETE /api/donations/:id` endpoint on backend.
+    - [x] Integrate trash delete button in `AdminDashboard.jsx` to invoke API.
+- [x] NGO & Donor Gratitude Feedback Feature
+    - [x] Create `Feedback.js` Mongoose schema in backend.
+    - [x] Implement backend controllers (`createFeedback`, `getFeedbackForDonor`, `getFeedbackFromNGO`).
+    - [x] Mount `/api/feedback` routes in backend.
+    - [x] Build gratitude submit modal dialog in `NGODashboard.jsx` for delivered collections.
+    - [x] Integrate a toggle tab-bar inside `DonorDashboard.jsx` rendering the "Gratitude Inbox".

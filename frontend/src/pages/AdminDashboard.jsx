@@ -28,6 +28,19 @@ const AdminDashboard = () => {
         fetchAll();
     }, []);
 
+    const handleDelete = async (id) => {
+        if (window.confirm('Are you sure you want to delete this donation record?')) {
+            try {
+                await api.delete(`/donations/${id}`);
+                setDonations(prev => prev.filter(d => d._id !== id));
+                setStats(prev => ({ ...prev, donations: prev.donations - 1 }));
+            } catch (error) {
+                console.error('Error deleting donation', error);
+                alert(error.response?.data?.message || 'Failed to delete donation');
+            }
+        }
+    };
+
     return (
         <div className="admin-panel animate-fade-up">
             <header style={{ marginBottom: '3rem' }}>
@@ -91,7 +104,13 @@ const AdminDashboard = () => {
                                         }}>{d.status}</span>
                                     </td>
                                     <td style={{ padding: '1rem' }}>
-                                        <button style={{ background: 'none', color: '#ef4444' }}><Trash2 size={18} /></button>
+                                        <button 
+                                            onClick={() => handleDelete(d._id)} 
+                                            style={{ background: 'none', color: '#ef4444', border: 'none', cursor: 'pointer' }}
+                                            title="Delete Donation Record"
+                                        >
+                                            <Trash2 size={18} />
+                                        </button>
                                     </td>
                                 </tr>
                             ))}

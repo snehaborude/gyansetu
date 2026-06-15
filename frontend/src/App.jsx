@@ -9,19 +9,33 @@ import DonorDashboard from './pages/DonorDashboard';
 import NGODashboard from './pages/NGODashboard';
 import AdminDashboard from './pages/AdminDashboard';
 import RequestsPage from './pages/RequestsPage';
+import About from './pages/About';
+import HowToHelp from './pages/HowToHelp';
+import Impact from './pages/Impact';
+import FAQs from './pages/FAQs';
+import Contact from './pages/Contact';
+import Tracking from './pages/Tracking';
+import Footer from './components/Footer';
 
 function App() {
   return (
     <Router>
       <AuthProvider>
-        <div className="app">
+        <div className="app home-bg">
           <Navbar />
           <main className="container">
             <Routes>
               <Route path="/" element={<Home />} />
+              <Route path="/about" element={<About />} />
+              <Route path="/how-to-help" element={<HowToHelp />} />
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
               <Route path="/requests" element={<RequestsPage />} />
+              <Route path="/impact" element={<Impact />} />
+              <Route path="/faqs" element={<FAQs />} />
+              <Route path="/contact" element={<Contact />} />
+              <Route path="/track" element={<Tracking />} />
+              <Route path="/track/:id" element={<Tracking />} />
               
               <Route 
                 path="/dashboard/donor" 
@@ -49,6 +63,7 @@ function App() {
               />
             </Routes>
           </main>
+          <Footer />
         </div>
       </AuthProvider>
     </Router>

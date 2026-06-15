@@ -15,11 +15,14 @@ const registerUser = async (req, res) => {
     try {
         const { name, email, password, role, address, city, pincode, phone } = req.body;
 
+        if (role && !['donor', 'ngo'].includes(role)) {
+            return res.status(400).json({ message: 'Invalid role selection. Cannot register as admin.' });
+        }
         if (phone && phone.length !== 10) {
             return res.status(400).json({ message: 'Phone number must be exactly 10 digits' });
         }
-        if (!password || password.length < 5) {
-            return res.status(400).json({ message: 'Password must be at least 5 characters' });
+        if (!password || password.length < 6) {
+            return res.status(400).json({ message: 'Password must be at least 6 characters' });
         }
 
         const userExists = await User.findOne({ email });

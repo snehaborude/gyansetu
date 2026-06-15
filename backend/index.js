@@ -33,6 +33,7 @@ app.get('/', (req, res) => {
 app.use('/api/auth', require('./routes/authRoutes'));
 app.use('/api/donations', require('./routes/donationRoutes'));
 app.use('/api/requests', require('./routes/requestRoutes'));
+app.use('/api/feedback', require('./routes/feedbackRoutes'));
 
 // Admin Seeding (Default)
 const User = require('./models/User');

@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
+import { useLocation, Link } from 'react-router-dom';
 import api from '../services/api';
 import { useAuth } from '../context/AuthContext';
-import { Plus, Clock, Book as BookIcon, CheckCircle, Package, Truck } from 'lucide-react';
+import { Plus, Clock, Book as BookIcon, CheckCircle, Package, Truck, ArrowRight } from 'lucide-react';
 
 const DonorDashboard = () => {
     const { user } = useAuth();
@@ -18,6 +18,8 @@ const DonorDashboard = () => {
     });
     const [message, setMessage] = useState('');
     const [error, setError] = useState('');
+    const [activeTab, setActiveTab] = useState('history'); // history, gratitude
+    const [gratitudeNotes, setGratitudeNotes] = useState([]);
     const [topDonors, setTopDonors] = useState([]);
     const [loading, setLoading] = useState(false);
 
@@ -26,6 +28,7 @@ const DonorDashboard = () => {
     useEffect(() => {
         fetchDonations();
         fetchTopDonors();
+        fetchGratitudeNotes();
 
         // Handle pre-filling from requested books
         const params = new URLSearchParams(location.search);
@@ -56,6 +59,15 @@ const DonorDashboard = () => {
             setDonations(res.data);
         } catch (error) {
             console.error('Error fetching donations', error);
+        }
+    };
+
+    const fetchGratitudeNotes = async () => {
+        try {
+            const res = await api.get('/feedback/donor');
+            setGratitudeNotes(res.data);
+        } catch (error) {
+            console.error('Error fetching gratitude notes', error);
         }
     };
 
@@ -292,12 +304,65 @@ const DonorDashboard = () => {
                 </div>
             </aside>
 
-            {/* Donation History */}
+            {/* Donation Content Column with Tabs */}
             <section>
-                    <h3 style={{ marginBottom: '1.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                        <Clock size={20} color="var(--primary)" />
-                        Your Recent Donations
-                    </h3>
+                <div style={{ display: 'flex', gap: '2rem', marginBottom: '2rem', borderBottom: '2px solid #f1f5f9', paddingBottom: '0.5rem' }}>
+                    <button 
+                        onClick={() => setActiveTab('history')}
+                        style={{
+                            background: 'none',
+                            border: 'none',
+                            fontWeight: activeTab === 'history' ? 800 : 500,
+                            color: activeTab === 'history' ? 'var(--primary)' : 'var(--text-muted)',
+                            fontSize: '1.1rem',
+                            cursor: 'pointer',
+                            position: 'relative',
+                            paddingBottom: '0.5rem',
+                            fontFamily: 'Outfit'
+                        }}
+                    >
+                        <Clock size={16} style={{ marginRight: '0.5rem', verticalAlign: 'middle' }} />
+                        Donation History
+                        {activeTab === 'history' && (
+                            <div style={{ position: 'absolute', bottom: '-8px', left: 0, right: 0, height: '3px', background: 'var(--primary)', borderRadius: '10px' }}></div>
+                        )}
+                    </button>
+                    
+                    <button 
+                        onClick={() => setActiveTab('gratitude')}
+                        style={{
+                            background: 'none',
+                            border: 'none',
+                            fontWeight: activeTab === 'gratitude' ? 800 : 500,
+                            color: activeTab === 'gratitude' ? 'var(--primary)' : 'var(--text-muted)',
+                            fontSize: '1.1rem',
+                            cursor: 'pointer',
+                            position: 'relative',
+                            paddingBottom: '0.5rem',
+                            fontFamily: 'Outfit'
+                        }}
+                    >
+                        ❤️ Gratitude Inbox
+                        {gratitudeNotes.length > 0 && (
+                            <span style={{ 
+                                marginLeft: '0.5rem', 
+                                background: '#ef4444', 
+                                color: 'white', 
+                                fontSize: '0.75rem', 
+                                padding: '0.1rem 0.4rem', 
+                                borderRadius: '10px', 
+                                fontWeight: 800 
+                            }}>
+                                {gratitudeNotes.length}
+                            </span>
+                        )}
+                        {activeTab === 'gratitude' && (
+                            <div style={{ position: 'absolute', bottom: '-8px', left: 0, right: 0, height: '3px', background: 'var(--primary)', borderRadius: '10px' }}></div>
+                        )}
+                    </button>
+                </div>
+
+                {activeTab === 'history' ? (
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
                         {donations.length === 0 ? (
                             <p style={{ color: 'var(--text-muted)', textAlign: 'center', padding: '2rem' }}>No donations yet. Start today!</p>
@@ -307,7 +372,7 @@ const DonorDashboard = () => {
                                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                                         <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
                                             {d.imageUrl ? (
-                                                <img src={`http://localhost:5000${d.imageUrl}`} alt="Book" style={{ width: '60px', height: '60px', objectFit: 'cover', borderRadius: '8px' }} />
+                                                <img src={`http://localhost:5080${d.imageUrl}`} alt="Book" style={{ width: '60px', height: '60px', objectFit: 'cover', borderRadius: '8px' }} />
                                             ) : (
                                                 <div style={{ background: 'var(--light)', padding: '1rem', borderRadius: 'var(--radius-sm)' }}>
                                                     <BookIcon size={24} color="var(--primary)" />
@@ -316,6 +381,32 @@ const DonorDashboard = () => {
                                             <div>
                                                 <h4 style={{ margin: 0, fontSize: '1.1rem' }}>{d.bookName}</h4>
                                                 <p style={{ margin: '0.2rem 0', fontSize: '0.85rem', color: 'var(--text-muted)' }}>{d.category} • {d.condition}</p>
+                                                <div style={{ marginTop: '0.4rem', fontSize: '0.8rem', color: 'var(--text-muted)' }}>
+                                                    <b>Tracking ID: </b> 
+                                                    <code 
+                                                        style={{ 
+                                                            background: '#f1f5f9', 
+                                                            padding: '0.15rem 0.35rem', 
+                                                            borderRadius: '4px', 
+                                                            cursor: 'pointer', 
+                                                            fontFamily: 'monospace',
+                                                            fontSize: '0.75rem',
+                                                            border: '1px solid #cbd5e1'
+                                                        }} 
+                                                        onClick={() => {
+                                                            navigator.clipboard.writeText(d._id);
+                                                            alert('Copied Tracking ID to clipboard!');
+                                                        }} 
+                                                        title="Click to copy ID"
+                                                    >
+                                                        {d._id}
+                                                    </code>
+                                                </div>
+                                                <div style={{ marginTop: '0.4rem' }}>
+                                                    <Link to={`/track/${d._id}`} style={{ color: 'var(--primary)', fontWeight: 700, fontSize: '0.8rem', display: 'inline-flex', alignItems: 'center', gap: '0.2rem' }}>
+                                                        Trace Shipment <ArrowRight size={12} />
+                                                    </Link>
+                                                </div>
                                                 {d.ngo && (
                                                     <div style={{ marginTop: '0.5rem', padding: '0.5rem', background: 'rgba(37, 99, 235, 0.05)', borderRadius: '4px', fontSize: '0.8rem' }}>
                                                         <span style={{ fontWeight: 600, color: 'var(--primary)' }}>Accepted by:</span> {d.ngo.name} <br/>
@@ -377,20 +468,53 @@ const DonorDashboard = () => {
                             ))
                         )}
                     </div>
-                    
-                    {/* Top Donors Widget */}
-                    <div className="glass-card" style={{ marginTop: '2rem', padding: '1.5rem' }}>
-                        <h3 style={{ marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                            🏆 Top Gyansetu Donors
-                        </h3>
-                        {topDonors.map((donor, idx) => (
-                            <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', padding: '0.8rem 0', borderBottom: '1px solid var(--glass-border)' }}>
-                                <span><span style={{ fontWeight: 800, marginRight: '0.5rem', color: 'var(--accent)' }}>#{idx + 1}</span> {donor.name}</span>
-                                <span style={{ fontWeight: 600 }}>{donor.totalDonated} Books</span>
+                ) : (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+                        {gratitudeNotes.length === 0 ? (
+                            <div className="glass-card flex-center animate-fade-up" style={{ flexDirection: 'column', padding: '3rem', textAlign: 'center', background: 'white' }}>
+                                <span style={{ fontSize: '3rem', marginBottom: '1rem' }}>💌</span>
+                                <h4 style={{ color: 'var(--dark)', marginBottom: '0.5rem', fontSize: '1.2rem' }}>Your Gratitude Inbox is Empty</h4>
+                                <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', maxWidth: '350px', lineHeight: 1.6 }}>
+                                    When an NGO receives your book donation and updates its status to 'Received', they can send a gratitude note that will appear right here!
+                                </p>
                             </div>
-                        ))}
+                        ) : (
+                            gratitudeNotes.map((note) => (
+                                <div key={note._id} className="card-light-blue animate-fade-up" style={{ padding: '2rem', borderLeft: '4px solid var(--secondary)', background: '#f0f7ff' }}>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem', borderBottom: '1px solid #cbd5e1', paddingBottom: '0.8rem' }}>
+                                        <div>
+                                            <h4 style={{ margin: 0, fontSize: '1.1rem', color: 'var(--dark)', fontFamily: 'Outfit' }}>From: {note.ngo?.name}</h4>
+                                            <p style={{ margin: '0.2rem 0 0 0', fontSize: '0.8rem', color: 'var(--text-muted)' }}>Location: {note.ngo?.city}</p>
+                                        </div>
+                                        <span style={{ fontSize: '0.75rem', color: 'var(--text-muted)' }}>
+                                            {new Date(note.createdAt).toLocaleDateString()}
+                                        </span>
+                                    </div>
+                                    <p style={{ fontSize: '0.95rem', fontStyle: 'italic', color: '#334155', lineHeight: 1.6, marginBottom: '1rem', background: 'white', padding: '1rem', borderRadius: '4px', border: '1px solid #e2e8f0' }}>
+                                        "{note.message}"
+                                    </p>
+                                    <div style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
+                                        Received for book: <b>{note.donation?.bookName}</b> ({note.donation?.category})
+                                    </div>
+                                </div>
+                            ))
+                        )}
                     </div>
-                </section>
+                )}
+                
+                {/* Top Donors Widget */}
+                <div className="glass-card" style={{ marginTop: '2.5rem', padding: '1.5rem', background: 'white' }}>
+                    <h3 style={{ marginBottom: '1rem', display: 'flex', alignItems: 'center', gap: '0.5rem', fontFamily: 'Outfit' }}>
+                        🏆 Top Gyansetu Donors
+                    </h3>
+                    {topDonors.map((donor, idx) => (
+                        <div key={idx} style={{ display: 'flex', justifyContent: 'space-between', padding: '0.8rem 0', borderBottom: '1px solid var(--glass-border)' }}>
+                            <span><span style={{ fontWeight: 800, marginRight: '0.5rem', color: 'var(--accent)' }}>#{idx + 1}</span> {donor.name}</span>
+                            <span style={{ fontWeight: 600 }}>{donor.totalDonated} Books</span>
+                        </div>
+                    ))}
+                </div>
+            </section>
             </div>
         </div>
     );

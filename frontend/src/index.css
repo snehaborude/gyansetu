@@ -1,8 +1,8 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;600;700&display=swap');
 
 :root {
-  --primary: #2563eb;
-  --primary-dark: #1d4ed8;
+  --primary: #4a7bb0;
+  --primary-dark: #355d88;
   --secondary: #10b981;
   --accent: #f59e0b;
   --dark: #0f172a;
@@ -72,7 +72,7 @@ button {
 
 /* Premium Buttons */
 .btn-primary {
-  background: linear-gradient(135deg, var(--primary), var(--primary-dark));
+  background: var(--primary);
   color: white;
   padding: 0.8rem 1.5rem;
   border-radius: var(--radius-sm);
@@ -109,10 +109,7 @@ button {
 
 /* Text Utilities */
 .text-gradient {
-  background: linear-gradient(135deg, var(--primary), var(--secondary));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
+  color: var(--primary);
 }
 
 /* Animations */
@@ -152,4 +149,38 @@ button {
 .step-card:hover {
   transform: translateY(-10px);
   box-shadow: var(--shadow-lg);
+}
+
+/* Home Background with Books Overlay */
+.home-bg {
+  background-image: linear-gradient(rgba(255, 255, 255, 0.78), rgba(255, 255, 255, 0.78)), url("https://images.unsplash.com/photo-1513001900722-370f803f498d?ixlib=rb-1.2.1&auto=format&fit=crop&w=1600&q=80");
+  background-attachment: fixed;
+  background-size: cover;
+  background-position: center;
+  transition: background-image 0.3s ease;
+  min-height: 100vh;
+}
+
+[data-theme='dark'] .home-bg {
+  background-image: linear-gradient(rgba(15, 23, 42, 0.82), rgba(15, 23, 42, 0.82)), url("https://images.unsplash.com/photo-1513001900722-370f803f498d?ixlib=rb-1.2.1&auto=format&fit=crop&w=1600&q=80");
+}
+
+/* Solid Light Blue Container class for neatness and text contrast */
+.card-light-blue {
+  background-color: #f0f7ff;
+  border: 1px solid #cbd5e1;
+  color: #0f172a;
+  border-radius: var(--radius-sm);
+  padding: 2.5rem;
+}
+
+[data-theme='dark'] .card-light-blue {
+  background-color: #1e293b;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #f8fafc;
+}
+
+/* Smooth Scrolling */
+html {
+  scroll-behavior: smooth;
 }

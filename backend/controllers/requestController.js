@@ -50,6 +50,11 @@ const updateRequest = async (req, res) => {
             return res.status(404).json({ message: 'Request not found' });
         }
 
+        // Verify request ownership
+        if (req.user.role === 'ngo' && request.ngo.toString() !== req.user.id) {
+            return res.status(403).json({ message: 'Not authorized to update this request.' });
+        }
+
         request.status = status;
         await request.save();
 
