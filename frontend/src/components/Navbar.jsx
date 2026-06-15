@@ -26,9 +26,6 @@ const Navbar = () => {
         <nav className="glass-card" style={{ 
             padding: '0.8rem 3rem', 
             margin: '0', 
-            position: 'sticky', 
-            top: '0', 
-            zIndex: 1000, 
             display: 'flex', 
             justifyContent: 'space-between', 
             alignItems: 'center',
